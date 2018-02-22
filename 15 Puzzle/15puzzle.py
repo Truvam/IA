@@ -1,10 +1,35 @@
 #!/usr/bin/env python3
 
+
 from prettytable import PrettyTable
 import math
 
 
 puzzle_size = 16
+
+
+#lista de matrizes
+class state:
+    def _init_(self, matrix, parent):
+        self.matrix = matrix
+        self.state = state
+        self.parent = parent
+        self.children = list()
+
+
+def move(state, position):
+    #position can be 1, 2, 3, 4 = up, down, left, right
+    
+    new_state = state
+    
+    if position == 1:
+        print("Up")
+    elif position == 2:
+        print("Down")
+    elif position == 3:
+        print("Left")
+    elif position == 4:
+        print("Right")
 
 
 def newMatrix(config):
@@ -55,19 +80,19 @@ def hasSolution(config):
     for i in range(0, puzzle_size):
         for j in range(i+1, puzzle_size):
             if config[i] > config[j] and config[j] != 0:
-                print("%d %d" %(config[i], config[j]))
+                #print("%d %d" %(config[i], config[j]))
                 n_inv += 1
-    print(n_inv)
+    print("number of inversions: %d" % n_inv)
     return (blank_row % 2 != 0) == (n_inv % 2 == 0)
+    
 
-
-def DFS(initialConfig, finalConfig):
+def DFS(initialConfig, finalConfig): #verificar se o no ja existe
     stack = initialConfig
-    visited = []
+    visited = set()
     while stack:
         node = stack.pop()
+        visited.add(node)
         if node not in visited:
-            visited.append(node)
             stack.push()
         print(node)
         print(visited)
@@ -76,9 +101,10 @@ def DFS(initialConfig, finalConfig):
 
 initialConfig = list(map(int, input("Initial Configuration: ").split()))
 finalConfig = list(map(int, input("Final Configuration: ").split()))
+print("\n")
 print(initialConfig)
 print(finalConfig)
-if not hasSolution(initialConfig):
+if not (hasSolution(initialConfig) == hasSolution(finalConfig)):
     print("This 15 puzzle has no solution.")
 else:
     print("This 15 puzzle has solution.")
@@ -98,8 +124,4 @@ else:
     elif option == '5':
         print("A*")
 
-"""
-é necessario verificar se a configuração dada é correta?
-é possivel dar mais que uma configuração inicial?
-"""
 
