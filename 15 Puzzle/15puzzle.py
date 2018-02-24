@@ -9,47 +9,83 @@ puzzle_size = 16
 
 
 #lista de matrizes
-class state:
-    def _init_(self, matrix, parent):
-        self.matrix = matrix
-        self.state = state
+class Node:
+    def __init__(self, state, parent):
+        self.state = state  #array from puzzle
         self.parent = parent
-        self.children = list()
+        self.children = list() #needs to be a list of nodes
 
 
-def move(state, position):
-    #position can be 1, 2, 3, 4 = up, down, left, right
-    
-    new_state = state
-    
-    if position == 1:
-        print("Up")
-    elif position == 2:
-        print("Down")
-    elif position == 3:
-        print("Left")
-    elif position == 4:
-        print("Right")
+    def is_samePuzzle(self, state):
+        if self.state == state:
+            return True
+        else:
+            return False
 
 
-def newMatrix(config):
-    """
+    def move(self):
+        # position can be 1, 2, 3, 4 = up, down, left, right
 
-    :param config: array of the initial config
-    :return: returns the generated matrix
-    """
-    matrix = [[0 for x in range(4)] for y in range(4)]
+        new_state = self.state[:]  # [:] is needed or original sate will be
+        blank_index = self.state.index(0)
+        # changed
+        # print("State:")
+        # print_puzzle(state)
+        if blank_index not in [0, 1, 2, 3]: # UP
+            tmp = new_state[blank_index - 4]
+            new_state[blank_index - 4] = new_state[blank_index]
+            new_state[blank_index] = tmp
+            #print_puzzle(self.state)
+            #print("Up")
+            #print_puzzle(new_state)
+            child = Node(new_state, self)
+            self.children.append(child)
 
-    it = 0
-    for i in range(0,4):
-        for j in range(0,4):
-            matrix[i][j] = config[it]
-            it += 1
+        new_state = self.state[:]
+        if blank_index not in [12, 13, 14, 15]:  # DOWN
+            tmp = new_state[blank_index + 4]
+            new_state[blank_index + 4] = new_state[blank_index]
+            new_state[blank_index] = tmp
+            #print_puzzle(state)
+            #print("Down")
+            #print_puzzle(new_state)
+            child = Node(new_state, self)
+            self.children.append(child)
 
-    return matrix
+        new_state = self.state[:]
+        if blank_index not in [0, 4, 8, 12]:  # LEFT
+            tmp = new_state[blank_index - 1]
+            new_state[blank_index - 1] = new_state[blank_index]
+            new_state[blank_index] = tmp
+            #print_puzzle(state)
+            #print("Left")
+            #print_puzzle(new_state)
+            child = Node(new_state, self)
+            self.children.append(child)
+
+        new_state = self.state[:]
+        if blank_index not in [3, 7, 11, 15]:  # RIGHT
+            tmp = new_state[blank_index + 1]
+            new_state[blank_index + 1] = new_state[blank_index]
+            new_state[blank_index] = tmp
+            #print_puzzle(state)
+            #print("Right")
+            #print_puzzle(new_state)
+            child = Node(new_state, self)
+            self.children.append(child)
 
 
-def createMenu():
+def print_puzzle(state):
+    table = PrettyTable()
+    table.add_row(state[0:4])
+    table.add_row(state[4:8])
+    table.add_row(state[8:12])
+    table.add_row(state[12:16])
+
+    print(table)
+
+
+def create_menu():
     table = PrettyTable(['Strategies', 'Options'])
     table.add_row(['DFS', 1])
     table.add_row(['BFS', 2])
@@ -59,7 +95,7 @@ def createMenu():
     print(table)
 
 
-def hasSolution(config):
+def has_solution(config):
     """
     Function to check whether any game state is solvable.
     Formula:
@@ -86,42 +122,75 @@ def hasSolution(config):
     return (blank_row % 2 != 0) == (n_inv % 2 == 0)
     
 
-def DFS(initialConfig, finalConfig): #verificar se o no ja existe
-    stack = initialConfig
-    visited = set()
-    while stack:
-        node = stack.pop()
-        visited.add(node)
-        if node not in visited:
-            stack.push()
-        print(node)
-        print(visited)
-    print(stack)
+def BFS(initialConfig, finalConfig): #verificar se o no ja existe
+    queue = list()
+    queue.append(Node(initialConfig, None))
+    visited = list()
+    path_solution = list()
+    GoalFound = False
+    while queue and not GoalFound:
+        node = queue.pop(0)
+        visited.append(node)
+        node.move()
+        #print_puzzle(node.state)
+        for child in node.children:
+            if child.is_samePuzzle(finalConfig):
+                print("Goal Found!")
+                GoalFound = True
+                #path_solution = path(child)
+            if not contains(queue, child) and not contains(visited, child):
+                queue.append(child)
+    return path_solution
 
 
-initialConfig = list(map(int, input("Initial Configuration: ").split()))
-finalConfig = list(map(int, input("Final Configuration: ").split()))
-print("\n")
-print(initialConfig)
-print(finalConfig)
-if not (hasSolution(initialConfig) == hasSolution(finalConfig)):
-    print("This 15 puzzle has no solution.")
-else:
-    print("This 15 puzzle has solution.")
-    #matrix = newMatrix(config)
-    #print(matrix)
-    createMenu()
-    option = input('Option: ')
-    if option == '1':
-        print("DFS")
-        DFS(initialConfig, finalConfig)
-    elif option == '2':
-        print("BFS*")
-    elif option == '3':
-        print("IDFS")
-    elif option == '4':
-        print("Greedy")
-    elif option == '5':
-        print("A*")
+def contains(listNode, Node):
+    contains = False
+    for list in listNode:
+        if(list.is_samePuzzle(Node.state)):
+            contains = True
+    return contains
 
+
+def path(Node):
+    node = Node
+    path = list()
+    path.append(node)
+    while node.parent is not None:
+        print_puzzle(node.parent.state)
+        #path.append(node.parent)
+    return path
+
+
+def main():
+    initialConfig = list(map(int, input("Initial Configuration: ").split()))
+    finalConfig = list(map(int, input("Final Configuration: ").split()))
+    print(initialConfig)
+    print(finalConfig)
+    if not (has_solution(initialConfig) == has_solution(finalConfig)):
+        print("This 15 puzzle has no solution.")
+    else:
+        print("This 15 puzzle has solution.")
+        create_menu()
+        option = input('Option: ')
+        print("Finding Path to Solution...")
+        if option == '1':
+            print("DFS")
+            #node = Node(initialConfig, None)
+            #node.move()
+            pathList = BFS(initialConfig, finalConfig)
+            for path in pathList:
+                print_puzzle(path)
+        elif option == '2':
+            print("Using: BFS")
+            path = BFS(initialConfig, finalConfig)
+            #quantos movimentos sao necessarios para encontrar solução
+            print(path)
+        elif option == '3':
+            print("IDFS")
+        elif option == '4':
+            print("Greedy")
+        elif option == '5':
+            print("A*")
+
+main()
 
