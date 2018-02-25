@@ -2,19 +2,24 @@
 
 
 from prettytable import PrettyTable
+#from memory_profiler import memory_usage #not needed, replaced by resource
 import math
+import time
+import resource
+import heapq
 
 
 puzzle_size = 16
+n_nodes = 0
 
 
 #lista de matrizes
 class Node:
-    def __init__(self, state, parent):
+    def __init__(self, state, parent, direction):
         self.state = state  #array from puzzle
         self.parent = parent
         self.children = list() #needs to be a list of nodes
-
+        self.direction = direction
 
     def is_samePuzzle(self, state):
         if self.state == state:
@@ -28,6 +33,7 @@ class Node:
 
         new_state = self.state[:]  # [:] is needed or original sate will be
         blank_index = self.state.index(0)
+        global n_nodes
         # changed
         # print("State:")
         # print_puzzle(state)
@@ -38,8 +44,9 @@ class Node:
             #print_puzzle(self.state)
             #print("Up")
             #print_puzzle(new_state)
-            child = Node(new_state, self)
+            child = Node(new_state, self, "Up")
             self.children.append(child)
+            n_nodes += 1
 
         new_state = self.state[:]
         if blank_index not in [12, 13, 14, 15]:  # DOWN
@@ -49,8 +56,9 @@ class Node:
             #print_puzzle(state)
             #print("Down")
             #print_puzzle(new_state)
-            child = Node(new_state, self)
+            child = Node(new_state, self, "Down")
             self.children.append(child)
+            n_nodes += 1
 
         new_state = self.state[:]
         if blank_index not in [0, 4, 8, 12]:  # LEFT
@@ -60,8 +68,9 @@ class Node:
             #print_puzzle(state)
             #print("Left")
             #print_puzzle(new_state)
-            child = Node(new_state, self)
+            child = Node(new_state, self, "Left")
             self.children.append(child)
+            n_nodes += 1
 
         new_state = self.state[:]
         if blank_index not in [3, 7, 11, 15]:  # RIGHT
@@ -71,8 +80,9 @@ class Node:
             #print_puzzle(state)
             #print("Right")
             #print_puzzle(new_state)
-            child = Node(new_state, self)
+            child = Node(new_state, self, "Right")
             self.children.append(child)
+            n_nodes += 1
 
 
 def print_puzzle(state):
@@ -122,11 +132,33 @@ def has_solution(config):
     return (blank_row % 2 != 0) == (n_inv % 2 == 0)
     
 
+def DFS(initialConfig, finalConfig): #verificar se o no ja existe
+    stack = list()
+    stack.append(Node(initialConfig, None, ""))
+    visited = list()
+    #path_solution = list()
+    GoalFound = False
+    while stack and not GoalFound:
+        node = stack.pop()
+        visited.append(node)
+        node.move()
+        #print_puzzle(node.state)
+        for child in node.children:
+            if child.is_samePuzzle(finalConfig):
+                print("Goal Found!")
+                GoalFound = True
+                path_solution(child)
+                #return path_solution
+            if not contains(stack, child) and not contains(visited, child):
+                stack.append(child)
+    #return path_solution
+
+
 def BFS(initialConfig, finalConfig): #verificar se o no ja existe
     queue = list()
-    queue.append(Node(initialConfig, None))
+    queue.append(Node(initialConfig, None, ""))
     visited = list()
-    path_solution = list()
+    #path_solution = list()
     GoalFound = False
     while queue and not GoalFound:
         node = queue.pop(0)
@@ -137,10 +169,34 @@ def BFS(initialConfig, finalConfig): #verificar se o no ja existe
             if child.is_samePuzzle(finalConfig):
                 print("Goal Found!")
                 GoalFound = True
-                #path_solution = path(child)
+                path_solution(child)
+                #return path_solution
             if not contains(queue, child) and not contains(visited, child):
                 queue.append(child)
-    return path_solution
+    #return path_solution
+
+
+def A_Star(initialConfig, finalConfig):
+    heap = []
+    heapq.heappush(heap, Node(initialConfig, None, ""))
+    visited = list()
+    GoalFound = False
+    while heap and not GoalFound:
+        node = heapq.heappop(heap)
+        visited.append(node)
+        node.move()
+        print_puzzle(node.state)
+        for child in node.children:
+            if child.is_samePuzzle(finalConfig):
+                print("Goal Found!")
+                GoalFound = True
+                path_solution(child)
+                #return path_solution
+            if not contains(heap, child) and not contains(visited, child):
+                heapq.heappush(heap, child)
+            elif child in heap:
+                heapq.heappush(heap, child)
+    #return path_solution
 
 
 def contains(listNode, Node):
@@ -151,14 +207,62 @@ def contains(listNode, Node):
     return contains
 
 
-def path(Node):
+def path_solution(Node):
     node = Node
-    path = list()
-    path.append(node)
+    #path = list()
+    #path.append(node)
+    directions = list()
+    directions.append(node.direction)
+    #print_puzzle(node.state)
+    #print(node.direction)
+    n_moves = 0
     while node.parent is not None:
-        print_puzzle(node.parent.state)
+        node = node.parent
+        #print_puzzle(node.state)
+        #print(node.direction)
         #path.append(node.parent)
-    return path
+        directions.append(node.direction)
+        n_moves += 1
+    directions.pop()
+    print("Path to solution: ", end="")
+    print(directions)
+    print("Number of moves: %d" % n_moves)
+    #print("Time to finish: ")
+    #print("Memory used: ")
+    #print("Depth/Cost: ")
+    #return path
+
+
+def execute(option, initialConfig, finalConfig):
+    print("Finding Path to Solution...")
+    start  = time.time()
+    global n_nodes
+
+    if option == '1':
+        print("DFS")
+        # node = Node(initialConfig, None)
+        # node.move()
+        #memory = memory_usage((DFS, (initialConfig, finalConfig)))
+        DFS(initialConfig, finalConfig)
+    elif option == '2':
+        print("Using: BFS")
+        #memory = memory_usage((BFS, (initialConfig, finalConfig)),
+        #                      max_usage=True, interval=0.0000001)
+        BFS(initialConfig, finalConfig)
+        # quantos movimentos sao necessarios para encontrar solução
+    elif option == '3':
+        print("IDFS")
+    elif option == '4':
+        print("Greedy")
+    elif option == '5':
+        print("A*")
+        A_Star(initialConfig, finalConfig)
+
+    end = time.time()
+    memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
+    print("Number of generated nodes: %d" % n_nodes)
+    print("Time to finish: %f s" % (end - start))
+    print("Memory used: %s MB" % memory)
 
 
 def main():
@@ -172,25 +276,7 @@ def main():
         print("This 15 puzzle has solution.")
         create_menu()
         option = input('Option: ')
-        print("Finding Path to Solution...")
-        if option == '1':
-            print("DFS")
-            #node = Node(initialConfig, None)
-            #node.move()
-            pathList = BFS(initialConfig, finalConfig)
-            for path in pathList:
-                print_puzzle(path)
-        elif option == '2':
-            print("Using: BFS")
-            path = BFS(initialConfig, finalConfig)
-            #quantos movimentos sao necessarios para encontrar solução
-            print(path)
-        elif option == '3':
-            print("IDFS")
-        elif option == '4':
-            print("Greedy")
-        elif option == '5':
-            print("A*")
+        execute(option, initialConfig, finalConfig)
 
 main()
 
