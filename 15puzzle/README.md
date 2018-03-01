@@ -1,3 +1,5 @@
+[![python](https://img.shields.io/badge/python-3.5-blue.svg)](https://www.python.org/downloads/)
+
 # 15 Puzzle
 ## Installation:
 ```
