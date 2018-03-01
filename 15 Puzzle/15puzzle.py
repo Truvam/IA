@@ -27,6 +27,12 @@ class Node:
 
 
     def is_samePuzzle(self, state):
+        """
+        This compares two states, in order to verify if they are equal,
+        it is also used to verify if the given state is the goal state.
+        :param state: state to compare;
+        :return: returns True or False whether the given states are equal.
+        """
         if self.state == state:
             return True
         else:
@@ -34,7 +40,12 @@ class Node:
 
 
     def move(self):
-        new_state = self.state[:]  #[:] is needed or original sate will be
+        """
+        This function is used to create the children.
+        For that it checks if the moves are possible and creates the
+        respective children node.
+        """
+        new_state = self.state[:]
         blank_index = self.state.index(0)
         global n_nodes
 
@@ -75,6 +86,10 @@ class Node:
 
 
 def print_puzzle(state):
+    """
+    Prints the matrix of the desired state.
+    :param state: state to print.
+    """
     table = PrettyTable()
     table.add_row(state[0:4])
     table.add_row(state[4:8])
@@ -84,6 +99,11 @@ def print_puzzle(state):
 
 
 def create_menu(option):
+    """
+    Creates the strategies and heuristics menu.
+    :param option: receives different option to create the strategies
+    menu or the heuristics.
+    """
     if option == 1:
         table = PrettyTable(['Strategies', 'Options'])
         table.add_row(['DFS', 1])
@@ -124,6 +144,11 @@ def has_solution(config):
     
 
 def DFS(initialConfig, finalConfig):
+    """
+    Depth-first search Algorithm.
+    :param initialConfig: initial state;
+    :param finalConfig: goal state.
+    """
     stack = list()
     stack.append(Node(initialConfig, None, "", 0, 0))
     visited = list()
@@ -145,6 +170,11 @@ def DFS(initialConfig, finalConfig):
 
 
 def BFS(initialConfig, finalConfig):
+    """
+    Breadth-first search Algorithm.
+    :param initialConfig: initial state;
+    :param finalConfig: goal state.
+    """
     queue = list()
     queue.append(Node(initialConfig, None, "", 0, 0))
     visited = list()
@@ -164,6 +194,11 @@ def BFS(initialConfig, finalConfig):
 
 
 def IDFS(initialConfig, finalConfig):
+    """
+    Iterative deepening depth-first search Algorithm.
+    :param initialConfig: initial state;
+    :param finalConfig: goal state.
+    """
     depth = 0
     GoalFound = False
     while not GoalFound:
@@ -173,6 +208,13 @@ def IDFS(initialConfig, finalConfig):
 
 
 def DLS(initialConfig, finalConfig, depth):
+    """
+    Depth-limited search Algorithm, used with IDFS.
+    :param initialConfig: initial state;
+    :param finalConfig: goal state;
+    :param depth: current depth received from IDFS;
+    :return: returns True or False, whether goal state was found.
+    """
     stack = list()
     stack.append(Node(initialConfig, None, "", 0, 0))
     visited = list()
@@ -195,6 +237,12 @@ def DLS(initialConfig, finalConfig, depth):
 
 
 def Greedy(initialConfig, finalConfig, heuristic):
+    """
+    Best-first search: Greedy Algorithm.
+    :param initialConfig: initial state;
+    :param finalConfig: final state;
+    :param heuristic: the heuristic chosen on menu.
+    """
     pq = PriorityQueue()
     pq.put(Node(initialConfig, None, "", 0, 0))
     visited = list()
@@ -220,6 +268,12 @@ def Greedy(initialConfig, finalConfig, heuristic):
 
 
 def A_Star(initialConfig, finalConfig, heuristic):
+    """
+    Best-first search: A* Algorithm.
+    :param initialConfig: initial state;
+    :param finalConfig: final state;
+    :param heuristic: the heuristic chosen on menu.
+    """
     pq = PriorityQueue()
     pq.put(Node(initialConfig, None, "", 0, 0))
     GoalFound = False
@@ -244,19 +298,34 @@ def A_Star(initialConfig, finalConfig, heuristic):
 
 
 def heuristic_manhattan(state, finalConfig):
+    """
+    Manhattan distance heuristic, the heuristic sums the distances of each
+    piece to its place in the final state.
+    :param state: current state;
+    :param finalConfig: final state;
+    :return: sum of all distances.
+    """
     cont = 0
-
     for i in range(0, 16):
         cont += manhattan_aux(state.index(i), finalConfig.index(i))
     return cont
 
 
+#Used to obtain the matrix coordinates from the state list.
 matrix_ij = {0:(1,1), 0.25:(1,2), 0.50:(1,3), 0.75:(1,4),
              1:(2,1), 1.25:(2,2), 1.50:(2,3), 1.75:(2,4),
              2:(3,1), 2.25:(3,2), 2.50:(3,3), 2.75:(3,4),
              3:(4,1), 3.25:(4,2), 3.50:(4,3), 3.75:(4,4)}
 
+
 def manhattan_aux(i, j):
+    """
+    This is a auxiliary function to manhattan distance.
+    :param i: index of piece in the current state list;
+    :param j: index of piece in the final state list;
+    :return: returns number of moves that are necessary to put the piece in
+    the same place as its final state.
+    """
     x1, y1 = matrix_ij[i/4]
     x2, y2 = matrix_ij[j/4]
     return abs(x1-x2) + abs(y1-y2)
@@ -265,8 +334,8 @@ def manhattan_aux(i, j):
 def heuristic_misplace(state, finalConfig):
     """
     This heuristics checks the number of out of place pieces.
-    :param initialConfig: First state;
-    :param finalConfig: Goal state;
+    :param state: current state;
+    :param finalConfig: goal state;
     :return: returns the number of out of place pieces.
     """
     h = 0
@@ -277,14 +346,25 @@ def heuristic_misplace(state, finalConfig):
 
 
 def contains(listNode, Node):
+    """
+    This function checks if a certain state is present in a list of nodes.
+    :param listNode: list of nodes;
+    :param Node: current node;
+    :return: returns True or False, whether the state was found on the list.
+    """
     contains = False
-    for list in listNode:
-        if(list.is_samePuzzle(Node.state)):
+    for node in listNode:
+        if(node.is_samePuzzle(Node.state)):
             contains = True
     return contains
 
 
 def path_solution(Node):
+    """
+    Prints the depth of the node, and goes to each parent node to obtain the
+    operator needed to create the path to solution.
+    :param Node: Node of the goal state.
+    """
     node = Node
     directions = list()
     directions.append(node.operator)
@@ -299,6 +379,14 @@ def path_solution(Node):
 
 
 def execute(option, initialConfig, finalConfig, heuristic):
+    """
+    Function used to execute the algorithm and heuristic.
+    In the end prints: Number of nodes created, time to finish and memory used.
+    :param option: algorithm chosen from the menu;
+    :param initialConfig: initial sate;
+    :param finalConfig: final state;
+    :param heuristic: heuristic chosen from the menu.
+    """
     print("Finding Path to Solution...")
     start  = time.time()
     global n_nodes
