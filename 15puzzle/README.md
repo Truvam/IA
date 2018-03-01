@@ -3,7 +3,7 @@
 ```
 Version: Python 3.5.2
 $ git clone https://github.com/Truvam/IA.git
-$ cd IA/15\ Puzzle/
+$ cd IA/15puzzle/
 $ sudo pip3 install -r requirements.txt
 ```
 ## Example:
