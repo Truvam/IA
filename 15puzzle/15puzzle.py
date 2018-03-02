@@ -311,13 +311,6 @@ def heuristic_manhattan(state, finalConfig):
     return cont
 
 
-#Used to obtain the matrix coordinates from the state list.
-matrix_ij = {0:(1,1), 0.25:(1,2), 0.50:(1,3), 0.75:(1,4),
-             1:(2,1), 1.25:(2,2), 1.50:(2,3), 1.75:(2,4),
-             2:(3,1), 2.25:(3,2), 2.50:(3,3), 2.75:(3,4),
-             3:(4,1), 3.25:(4,2), 3.50:(4,3), 3.75:(4,4)}
-
-
 def manhattan_aux(i, j):
     """
     This is a auxiliary function to manhattan distance.
@@ -326,6 +319,12 @@ def manhattan_aux(i, j):
     :return: returns number of moves that are necessary to put the piece in
     the same place as its final state.
     """
+    # Used to obtain the matrix coordinates from the state list.
+    matrix_ij = {0: (1, 1), 0.25: (1, 2), 0.50: (1, 3), 0.75: (1, 4),
+                 1: (2, 1), 1.25: (2, 2), 1.50: (2, 3), 1.75: (2, 4),
+                 2: (3, 1), 2.25: (3, 2), 2.50: (3, 3), 2.75: (3, 4),
+                 3: (4, 1), 3.25: (4, 2), 3.50: (4, 3), 3.75: (4, 4)}
+
     x1, y1 = matrix_ij[i/4]
     x2, y2 = matrix_ij[j/4]
     return abs(x1-x2) + abs(y1-y2)
