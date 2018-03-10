@@ -21,6 +21,9 @@ while not end game
         jogada(play)
     else pedejogada 
 """
+player1 = 0
+player2 = 1
+pc = 3
 
 
 class Board:
@@ -36,7 +39,7 @@ class Board:
         placed = False
         for i in range(self.height-1, -1, -1):
             if self.board[i][column] == "_":
-                if player:
+                if player == player1:
                     self.board[i][column] = "X"
                 else:
                     self.board[i][column] = "O"
@@ -47,25 +50,24 @@ class Board:
     
     
     def finished(self, player):
-        if player:
+        if player == player1:
             play = "X"
         else:
             play = "O"
         
-        cont = 0;
-        for i in range(0, self.height):  #ROW
+        cont = 0
+        for i in range(0, self.height):  #HORIZONTAL
             for j in range(0, self.width):
                 if self.board[i][j] == play:
                     cont += 1
                 else:
                     cont = 0
-                
                 if cont == 4:
                     return 2
             cont = 0
         
         cont = 0
-        for j in range(0, self.width):  #COLUMN
+        for j in range(0, self.width):  #VERTICAL
             for i in range(0, self.height):
                 if self.board[i][j] == play:
                     cont += 1
@@ -76,22 +78,42 @@ class Board:
             cont = 0
         
         cont = 0
-        for j in range(0, self.width):  #DIAGONAL
-            for i in range(0, self.height):
+        i = 0
+        for side in range(3, -1, -1):  #DIAGONAL RIGHT
+            for j in range(side, self.width):
                 if self.board[i][j] == play:
                     cont += 1
                 else:
                     cont = 0
                 if cont == 4:
                     return 2
+                i += 1
+                if(i == 6):
+                    break
             cont = 0
+            i = 0
+
+        cont = 0
+        j = 0
+        for side in range(2, -1, -1):  # DIAGONAL LEFT
+            for i in range(side, self.height):
+                if self.board[i][j] == play:
+                    cont += 1
+                else:
+                    cont = 0
+                if cont == 4:
+                    return 2
+                j += 1
+                if (i == 6):
+                    break
+            cont = 0
+            j = 0
 
         return 0
     #dentro da utilidade
     #def utility(self, i, j):
 
-            
-            
+
     def print_board(self):
         print("  0 1 2 3 4 5 6")
         print(" _______________")
@@ -104,20 +126,27 @@ class Board:
 
 
 def who_won(result, player):
-    if player:
+    if player == player1:
         if result == 1:
             print("Draw!")        
         elif result == 2:
-            print("You won!")
+            print("You Won!")
         else:
-            print("You lost!")        
+            print("You Lost!")
+    elif player == player2:
+        if result == 1:
+            print("Draw!")
+        elif result == 2:
+            print("Player2 Won!")
+        else:
+            print("Player2 Lost!")
     else:
         if result == 1:
             print("Draw!")        
         elif result == 2:
-            print("PC won!")
+            print("PC Won!")
         else:
-            print("PC lost!")
+            print("PC Lost!")
     
 
 def start_game(option):
@@ -140,25 +169,23 @@ def start_game(option):
             if column > 6 or column < 0:
                 print("Column not valid!")
             else:
-                board.play(column, True)
+                board.play(column, player1)
                 board.print_board()
                 
-                result = board.finished(True)
+                result = board.finished(player1)
                 if result != 0:
-                    who_won(result, True)
+                    who_won(result, player1)
                     break
-                
                 pc_turn = True
         else:
             print("PC turn.")
-            board.play(0, False)
+            column = int(input("Choose column: "))
+            board.play(column, pc)
             board.print_board()
-            
-            result = board.finished(False)
+            result = board.finished(pc)
             if result != 0:
-                who_won(result, False)
+                who_won(result, pc)
                 break
-            
             pc_turn = False
 
 
