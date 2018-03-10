@@ -24,6 +24,7 @@ while not end game
 player1 = 0
 player2 = 1
 pc = 3
+empty = "_"
 
 
 class Board:
@@ -38,7 +39,7 @@ class Board:
     def play(self, column, player):
         placed = False
         for i in range(self.height-1, -1, -1):
-            if self.board[i][column] == "_":
+            if self.board[i][column] == empty:
                 if player == player1:
                     self.board[i][column] = "X"
                 else:
@@ -54,7 +55,15 @@ class Board:
             play = "X"
         else:
             play = "O"
-        
+
+        cont = 0
+        for i in range(0, self.height):  #DRAW
+            for j in range(0, self.width):
+                if self.board[i][j] != empty:
+                    cont += 1
+                if cont == 42:
+                    return 1
+
         cont = 0
         for i in range(0, self.height):  #HORIZONTAL
             for j in range(0, self.width):
@@ -65,7 +74,7 @@ class Board:
                 if cont == 4:
                     return 2
             cont = 0
-        
+
         cont = 0
         for j in range(0, self.width):  #VERTICAL
             for i in range(0, self.height):
@@ -149,16 +158,59 @@ def who_won(result, player):
             print("PC Lost!")
     
 
-def start_game(option):
-    board = Board()
-    board.print_board()
-    
+def player_player(board):
+    print("1: Player1")
+    print("2: Player2")
+    plays_first = input("Who plays first? [1/2]: ")
+    p1_turn = True
+
+    if plays_first == "1":
+        p1_turn = False
+
+    while True:
+        if not p1_turn:
+            print("Player1 turn.")
+            column = int(input("Choose column: "))
+            if column == -1:
+                print("Ending game...")
+                break
+            if column > 6 or column < 0:
+                print("Column not valid!")
+            else:
+                board.play(column, player1)
+                board.print_board()
+
+                result = board.finished(player1)
+                if result != 0:
+                    who_won(result, player1)
+                    break
+                p1_turn = True
+        else:
+            print("Player2 turn.")
+            column = int(input("Choose column: "))
+            if column == -1:
+                print("Ending game...")
+                break
+            if column > 6 or column < 0:
+                print("Column not valid!")
+            else:
+                board.play(column, player2)
+                board.print_board()
+
+                result = board.finished(player2)
+                if result != 0:
+                    who_won(result, player2)
+                    break
+                p1_turn = False
+
+
+def player_pc(board):
     plays_first = input("Do you want to play first? [y/n]: ")
     pc_turn = True
-    
-    if plays_first == "y" or plays_first ==  "yes":
+
+    if plays_first == "y" or plays_first == "yes":
         pc_turn = False
-        
+
     while True:
         if not pc_turn:
             print("Your turn.")
@@ -171,7 +223,7 @@ def start_game(option):
             else:
                 board.play(column, player1)
                 board.print_board()
-                
+
                 result = board.finished(player1)
                 if result != 0:
                     who_won(result, player1)
@@ -179,8 +231,7 @@ def start_game(option):
                 pc_turn = True
         else:
             print("PC turn.")
-            column = int(input("Choose column: "))
-            board.play(column, pc)
+            board.play(0, pc)
             board.print_board()
             result = board.finished(pc)
             if result != 0:
@@ -189,10 +240,20 @@ def start_game(option):
             pc_turn = False
 
 
+def start_game(option):
+    board = Board()
+    board.print_board()
+    if option == 1:
+        player_player(board)
+    else:
+        player_pc(board)
+
+
+
 def main():
     print("1: Player vs Player")
     print("2: Player vs PC")
-    option = input("Option: ")
+    option = int(input("Option: "))
     start_game(option)
 
 
