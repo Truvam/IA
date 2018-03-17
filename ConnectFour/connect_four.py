@@ -10,7 +10,6 @@ pc = 3
 empty = "_"
 width = 7
 height = 6
-value = 0
 
 
 class Board:
@@ -21,7 +20,7 @@ class Board:
         placed = False
         for i in range(height-1, -1, -1):
             if self.board[i][column] == empty:
-                if player == player1:
+                if player == player1 or player == pc:
                     self.board[i][column] = "X"
                 else:
                     self.board[i][column] = "O"
@@ -31,32 +30,22 @@ class Board:
             print("Column %d is full." % column)
 
     def value_aux(self, cont_x, cont_o):
-        global value
         if cont_o == 3 and cont_x == 0:
-            value -= 50
+            return -50
         elif cont_o == 2 and cont_x == 0:
-            value -= 10
+            return -10
         elif cont_o == 1 and cont_x == 0:
-            value -= 1
+            return -1
         elif cont_o == 0 and cont_x == 1:
-            value += 1
+            return 1
         elif cont_o == 0 and cont_x == 2:
-            value += 10
+            return 10
         elif cont_o == 0 and cont_x == 3:
-            value += 50
+            return 50
+        return 0
 
-    def finished(self, player):
-        global value
-        if player == player1:
-            play = "X"
-            value += 16
-        else:
-            play = "O"
-            value -= 16
-
+    def utility(self):
         cont = 0
-        cont_x = 0
-        cont_o = 0
         for i in range(0, height):  # DRAW
             for j in range(0, width):
                 if self.board[i][j] != empty:
@@ -64,161 +53,82 @@ class Board:
                 if cont == 42:
                     return 0
 
-        cont = 0
+        cont_x = 0
+        cont_o = 0
+        sum = 0
         for i in range(0, height):  # HORIZONTAL
-            for j in range(0, width):
-                if self.board[i][j] == play:
-                    if play == "X":
+            for j in range(0, width-3):
+                for k in range(j, j+4):
+                    # print("(%d, %d)" % (i, k))
+                    if self.board[i][k] == "X":
                         cont_x += 1
-                    else:
-                        cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-            self.value_aux(cont_x, cont_o)
-            cont_x = 0
-            cont_o = 0
-            cont = 0
+                    elif self.board[i][k] == "O":
+                        cont_o += 1      
+                if cont_x == 4:
+                    return 512
+                elif cont_o == 4:
+                    return -512
+                sum += self.value_aux(cont_x, cont_o)
+                cont_x = 0
+                cont_o = 0
 
-        cont = 0
         for j in range(0, width):  # VERTICAL
-            for i in range(0, height):
-                if self.board[i][j] == play:
-                    if play == "X":
+            for i in range(0, height-3):
+                for k in range(i, i+4):
+                    # print("(%d, %d)" % (k, j))
+                    if self.board[k][j] == "X":
                         cont_x += 1
-                    else:
+                    elif self.board[k][j] == "O":
+                        cont_o += 1      
+                if cont_x == 4:
+                    return 512
+                elif cont_o == 4:
+                    return -512
+                sum += self.value_aux(cont_x, cont_o)
+                cont_x = 0
+                cont_o = 0
+
+        for i in range(3, height):  # DIAGONAL RIGHT
+            z = i
+            for j in range(0, width-3):
+                for k in range(j, j+4):
+                    # print("(%d, %d)" % (z, k))
+                    if self.board[z][k] == "X":
+                        cont_x += 1
+                    elif self.board[z][k] == "O":
                         cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-            self.value_aux(cont_x, cont_o)
+                    z -= 1
+                z = i
+                if cont_x == 4:
+                    return 512
+                elif cont_o == 4:
+                    return -512
+            sum += self.value_aux(cont_x, cont_o)
             cont_x = 0
             cont_o = 0
-            cont = 0
-        
-        cont = 0
-        i = 0
-        for side in range(3, -1, -1):  # DIAGONAL RIGHT
-            for j in range(side, width):
-                if self.board[i][j] == play:
-                    if play == "X":
+
+        for i in range(3, height):  # DIAGONAL LEFT
+            z = i
+            for j in range(width-1, width-5, -1):
+                for k in range(j, j-4, -1):
+                    print("(%d, %d)" % (z, k))
+                    if self.board[z][k] == "X":
                         cont_x += 1
-                    else:
+                    elif self.board[z][k] == "O":
                         cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-                i += 1
-                if(i == 6):
-                    break
-            self.value_aux(cont_x, cont_o)
+                    z -= 1
+                z = i
+                if cont_x == 4:
+                    return 512
+                elif cont_o == 4:
+                    return -512
+            sum += self.value_aux(cont_x, cont_o)
             cont_x = 0
             cont_o = 0
-            cont = 0
-            i = 0
 
-        cont = 0
-        j = 0
-        for side in range(2, -1, -1):  # DIAGONAL LEFT
-            for i in range(side, height):
-                if self.board[i][j] == play:
-                    if play == "X":
-                        cont_x += 1
-                    else:
-                        cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-                j += 1
-                if (i == 6):
-                    break
-            self.value_aux(cont_x, cont_o)
-            cont_x = 0
-            cont_o = 0
-            cont = 0
-            j = 0
-
-        cont = 0
-        for i in range(3, 5):  # DIAGONAL UP
-            for j in range(0, width):
-                if self.board[i][j] == play:
-                    if play == "X":
-                        cont_x += 1
-                    else:
-                        cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-                i -= 1
-                if i < 0:
-                    break
-            self.value_aux(cont_x, cont_o)
-            cont_x = 0
-            cont_o = 0
-            cont = 0
-
-        cont = 0
-        i = 5
-        for side in range(0, 4):  # DIAGONAL DOWN
-            for j in range(side, width):
-                if self.board[i][j] == play:
-                    if play == "X":
-                        cont_x += 1
-                    else:
-                        cont_o += 1
-                    cont += 1
-                else:
-                    cont = 0
-                if cont == 4:
-                    if play == "X":
-                        value += 512
-                    else:
-                        value -= 512
-                    return 1
-                i -= 1
-                if (i < 0):
-                    break
-            self.value_aux(cont_x, cont_o)
-            cont_x = 0
-            cont_o = 0
-            cont = 0
-            i = 5
-
-        print(value)
-        return -1
-
-    def utility(self):
-        return value
+        self.print_board()
+        print("Sum: %d" % sum)
+        return sum
 
     def print_board(self):
         print("  0 1 2 3 4 5 6")
@@ -235,21 +145,21 @@ def who_won(result, player):
     if player == player1:
         if result == 0:
             print("Draw!")        
-        elif result == 1:
+        elif result == 512:
             print("Player1 Won!")
         else:
             print("You Lost!")
     elif player == player2:
         if result == 0:
             print("Draw!")
-        elif result == 1:
+        elif result == -512:
             print("Player2 Won!")
         else:
             print("Player2 Lost!")
     else:
         if result == 0:
             print("Draw!")        
-        elif result == 1:
+        elif result == 512:
             print("PC Won!")
         else:
             print("PC Lost!")
@@ -268,7 +178,7 @@ def successors(board):
 
 def max_value(is_ab, board, alpha, beta):
     print("MAX")
-    if board.finished(pc) != -1:
+    if board.utility(pc) != -1:
         return board.utility()  # UTILITY(state)
     v = float("-inf")
     for b in successors(board):
@@ -283,7 +193,7 @@ def max_value(is_ab, board, alpha, beta):
 
 def min_value(is_ab, board, alpha, beta):
     print("MIN")
-    if board.finished(pc) != -1:
+    if board.utility(pc) != -1:
         return board.utility()  # UTILITY(state)
     v = float("inf")
     for b in successors(board):
@@ -330,9 +240,8 @@ def player_player(board):
             else:
                 board.play(column, player1)
                 board.print_board()
-
-                result = board.finished(player1)
-                if result != -1:
+                result = board.utility()
+                if result in [-512, 512]:
                     who_won(result, player1)
                     break
                 p1_turn = True
@@ -348,8 +257,8 @@ def player_player(board):
                 board.play(column, player2)
                 board.print_board()
 
-                result = board.finished(player2)
-                if result != -1:
+                result = board.utility()
+                if result in [-512, 512]:
                     who_won(result, player2)
                     break
                 p1_turn = False
@@ -366,7 +275,7 @@ def player_pc(board):
         pc_turn = False
 
     board.print_board()
-    print("You are 'X' and PC is 'O'")
+    print("You are 'O' and PC is 'X'")
     while True:
         if not pc_turn:
             print("Your turn.")
@@ -377,23 +286,23 @@ def player_pc(board):
             if column > 6 or column < 0:
                 print("Column not valid!")
             else:
-                board.play(column, player1)
+                board.play(column, player2)
                 board.print_board()
 
-                result = board.finished(player1)
+                result = board.utility(player2)
                 if result != -1:
-                    who_won(result, player1)
+                    who_won(result, player2)
                     break
                 pc_turn = True
         else:
             print("PC turn.")
             if ai == 1:
-                v = min_max(board)
+                col = min_max(board)
             else:
-                v = alpha_beta(board)
-            board.play(v, pc)
+                col = alpha_beta(board)
+            board.play(col, pc)
             board.print_board()
-            # result = board.finished(pc)
+            # result = board.utility(pc)
             # if result != -1:
                 # who_won(result, pc)
                 # break
@@ -406,7 +315,7 @@ def start_game(option):
         player_player(board)
     else:
         player_pc(board)
-    print("DEBUG: Value: %d" % value)
+    # print("DEBUG: Value: %d" % value)
 
 
 def main():
