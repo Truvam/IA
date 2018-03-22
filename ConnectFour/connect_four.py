@@ -371,7 +371,7 @@ def player_player(board):
                             break
                         p1_turn = True
                     else:
-                        print("Column is full!")
+                        print("Column %d is full!" % column)
         else:
             print("Player2 turn.")
             column = input("Choose column: ")
@@ -396,7 +396,7 @@ def player_player(board):
                             break
                         p1_turn = False
                     else:
-                        print("Column is full!")
+                        print("Column %d is full!" % column)
 
 
 def player_pc(board):
@@ -446,7 +446,7 @@ def player_pc(board):
                             break
                         pc_turn = True
                     else:
-                        print("Column is full!")
+                        print("Column %d is full!" % column)
         else:
             print("PC turn.")
             start = time.time()
@@ -465,7 +465,10 @@ def player_pc(board):
                     break
                 pc_turn = False
             else:
-                print("Column is full!")
+                print("ERROR!")
+                print("Column %d is full!" % b)
+                print("AI has no possible moves.")
+                break
             end = time.time()
             memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
             print("Time to play: %f s" % (end - start))
@@ -516,7 +519,9 @@ def pc_pc(board):
                     break
                 pc_turn = True
             else:
-                print("Column is full!")
+                print("There are no possible win moves.")
+                print("Draw!")
+                break
             end = time.time()
             memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
             print("Time to play: %f s" % (end - start))
@@ -541,7 +546,9 @@ def pc_pc(board):
                     break
                 pc_turn = False
             else:
-                print("Column is full!")
+                print("There are no possible win moves.")
+                print("Draw!")
+                break
             end = time.time()
             memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
             print("Time to play: %f s" % (end - start))
