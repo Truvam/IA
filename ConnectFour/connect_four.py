@@ -2,15 +2,19 @@
 
 
 import copy
+import time
+import resource
 
 
 player1 = 0
 player2 = 1
 pc = 3
+pc2 = 4
 empty = "_"
 width = 7
 height = 6
 max_depth = 0
+n_nodes = 0
 
 
 class Board:
@@ -67,7 +71,6 @@ class Board:
         for i in range(0, height):  # HORIZONTAL
             for j in range(0, width-3):
                 for k in range(j, j+4):
-                    # print("(%d, %d)" % (i, k))
                     if self.board[i][k] == "X":
                         cont_x += 1
                     elif self.board[i][k] == "O":
@@ -83,7 +86,6 @@ class Board:
         for j in range(0, width):  # VERTICAL
             for i in range(0, height-3):
                 for k in range(i, i+4):
-                    # print("(%d, %d)" % (k, j))
                     if self.board[k][j] == "X":
                         cont_x += 1
                     elif self.board[k][j] == "O":
@@ -100,7 +102,6 @@ class Board:
             z = i
             for j in range(0, width-3):
                 for k in range(j, j+4):
-                    # print("(%d, %d)" % (z, k))
                     if self.board[z][k] == "X":
                         cont_x += 1
                     elif self.board[z][k] == "O":
@@ -119,7 +120,6 @@ class Board:
             z = i
             for j in range(width-1, width-5, -1):
                 for k in range(j, j-4, -1):
-                    # print("(%d, %d)" % (z, k))
                     if self.board[z][k] == "X":
                         cont_x += 1
                     elif self.board[z][k] == "O":
@@ -133,8 +133,6 @@ class Board:
                 sum += self.value_aux(cont_x, cont_o)
                 cont_x = 0
                 cont_o = 0
-
-        # print("Sum: %d" % sum)
         return sum
 
     def print_board(self):
@@ -163,106 +161,104 @@ def who_won(result, player):
             print("Player2 Won!")
         else:
             print("Player2 Lost!")
-    else:
+    elif player == pc:
         if result == 0:
             print("Draw!")        
         elif result == 512:
-            print("PC Won!")
+            print("PC 1 Won!")
         else:
-            print("PC Lost!")
+            print("PC 1 Lost!")
+    else:
+        if result == 0:
+            print("Draw!")
+        elif result == 512:
+            print("PC 2 Won!")
+        else:
+            print("PC 2 Lost!")
 
 
 def successors(board, player):
+    global n_nodes
     temp_board = copy.deepcopy(board)
     child_list = list()
     for i in range(0, width):
-        if player == pc:
-            temp_board.play(i, pc)
-        else:
-            temp_board.play(i, player2)
-        # temp_board.print_board()
+        temp_board.play(i, player)
         temp_board.column = i
-        # temp_board.value = temp_board.utility()
+        n_nodes += 1
         child_list.append(temp_board)
-        temp_board = copy.deepcopy(board)  # nao guardar em memoria
+        temp_board = copy.deepcopy(board)
     return child_list
 
 
-def min_max(board, depth, max_player):
-    global max_depth
-    move = 0
-    v = 0
-    v = board.utility()
-    if depth == 0 or v in [-512, 512] or board.is_draw():
-        board.value = v
-        return board
-    if max_player:
-        best_value = float("-inf")
-        for b in successors(board, pc):
-            v = min_max(b, depth-1, False).value
-            best_value = max(best_value, v)
-            if best_value == v:
-                move = b.column
-        board.value = v
-        if depth == max_depth:
-            board.column = move
-        return board
-    else:
-        best_value = float("+inf")
-        for b in successors(board, player2):
-            v = min_max(b, depth-1, True).value
-            best_value = min(best_value, v)
-            if best_value == v:
-                move = b.column
-        board.value = v
-        if depth == max_depth:
-            board.column = move
-        return board
+def min_max(board, depth):
+    value = float("-inf")
+    column = 0
+    for s in successors(board, pc):
+        v = min_value(s, depth - 1)
+        if v >= value:
+            value = v
+            column = s.column
+    return column
+ 
 
-
-def alpha_beta(board, depth, alpha, beta, max_player):
-    global max_depth
-    move = 0
-    v = 0
+def min_value(board, depth):
     value = board.utility()
     if depth == 0 or value in [-512, 512] or board.is_draw():
-        board.value = value
-        return board
-    if max_player:
-        best_value = float("-inf")
-        for b in successors(board, pc):
-            if beta <= alpha:
-                break
-            v = alpha_beta(b, depth - 1, alpha, beta, False).value
-            best_value = max(best_value, v)
-            if best_value == v:
-                # if v >= beta:
-                    # board.value = v
-                    # return board
-                move = b.column
-                alpha = max(alpha, v)
-            
-        board.value = v
-        board.column = move
-        return board
-    else:
-        best_value = float("+inf")
-        for b in successors(board, player2):
-            if beta <= alpha:
-                break
-            v = alpha_beta(b, depth - 1, alpha, beta, True).value
-            best_value = min(best_value, v)
-            if best_value == v:
-                # if v <= alpha:
-                    # board.value = v
-                    # return board
-                move = b.column
-                beta = min(beta, v)
-            
-        board.value = v
-        board.column = move
-        return board
+        return value
+    v = float("inf")
+    for s in successors(board, player2):
+        v = min(v, max_value(s, depth - 1))
+    return v
+    
 
+def max_value(board, depth):
+    value = board.utility()
+    if depth == 0 or value in [-512, 512] or board.is_draw():
+        return value
+    v = float("-inf")
+    for s in successors(board, pc):
+        v = max(v, min_value(s, depth - 1))
+    return v
+    
+
+def alpha_beta(board, depth, alpha, beta):
+    value = float("-inf")
+    column = 0
+    for s in successors(board, pc):
+        v = min_value_ab(s, depth - 1, alpha, beta)
+        if v >= value:
+            value = v
+            column = s.column
+            if value >= beta:
+                break
+    return column
+ 
+
+def min_value_ab(board, depth, alpha, beta):
+    value = board.utility()
+    if depth == 0 or value in [-512, 512] or board.is_draw():
+        return value
+    v = float("inf")
+    for s in successors(board, player2):
+        v = min(v, max_value_ab(s, depth - 1, alpha, beta))
+        if v <= alpha:
+            return v
+        beta = min(beta, v)
+    return v
+    
+
+def max_value_ab(board, depth, alpha, beta):
+    value = board.utility()
+    if depth == 0 or value in [-512, 512] or board.is_draw():
+        return value
+    v = float("-inf")
+    for s in successors(board, pc):
+        v = max(v, min_value_ab(s, depth - 1, alpha, beta))
+        if v >= beta:
+            return v
+        alpha = max(alpha, v)
+    return v
+    
 
 def player_player(board):
     print("1: Player1")
@@ -330,6 +326,7 @@ def player_player(board):
 
 def player_pc(board):
     global max_depth
+    global n_nodes
     print("1: AI - MiniMax")
     print("2: AI - Alpha-Beta")
     ai = input("Option: ")
@@ -373,13 +370,12 @@ def player_pc(board):
                         print("Column is full!")
         else:
             print("PC turn.")
+            start = time.time()
             if ai == "1":
-                b = min_max(board, depth, True)
+                b = min_max(board, depth)
             else:
-                b = alpha_beta(board, depth, float("-inf"), float("+inf"),
-                               True)
-            # print("Col: %d" % board.column)
-            if board.play(b.column, pc):
+                b = alpha_beta(board, depth, float("-inf"), float("+inf"))
+            if board.play(b, pc):
                 board.print_board()
                 if board.is_draw():
                     who_won(0, pc)
@@ -391,20 +387,101 @@ def player_pc(board):
                 pc_turn = False
             else:
                 print("Column is full!")
+            end = time.time()
+            memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
+            print("Time to play: %f s" % (end - start))
+            print("Memory used: %s MB" % memory)
+            print("Number of generated nodes: %d" % n_nodes)
+
+
+def pc_pc(board):
+    global max_depth
+    global n_nodes
+    print("1: AI - MiniMax")
+    print("2: AI - Alpha-Beta")
+    ai = input("Option: ")
+    print("Difficulty:")
+    print("Depth: 4 (Easy)  Depth: 6 (Medium)  Depth: 8 (Hard)")
+    depth = int(input("Depth: "))
+    max_depth = depth
+    print("1: PC 1")
+    print("2: PC 2")
+    plays_first = input("Who plays first? [1/2]: ")
+    pc_turn = True
+
+    if plays_first == "1":
+        pc_turn = False
+
+    board.print_board()
+    print("PC 1 is 'X' and PC 2 is 'O'")
+    while True:
+        if not pc_turn:
+            print("PC 1 turn.")
+            start = time.time()
+            if ai == "1":
+                b = min_max(board, depth)
+            else:
+                b = alpha_beta(board, depth, float("-inf"), float("+inf"))
+            if board.play(b, pc):
+                board.print_board()
+                if board.is_draw():
+                    who_won(0, pc)
+                    break
+                result = board.utility()
+                if result in [-512, 512]:
+                    who_won(result, pc)
+                    break
+                pc_turn = True
+            else:
+                print("Column is full!")
+            end = time.time()
+            memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
+            print("Time to play: %f s" % (end - start))
+            print("Memory used: %s MB" % memory)
+            print("Number of generated nodes: %d" % n_nodes)
+            n_nodes = 0
+        else:
+            print("PC 2 turn.")
+            start = time.time()
+            if ai == "1":
+                b = min_max(board, depth)
+            else:
+                b = alpha_beta(board, depth, float("-inf"), float("+inf"))
+            if board.play(b, pc2):
+                board.print_board()
+                if board.is_draw():
+                    who_won(0, pc2)
+                    break
+                result = board.utility()
+                if result in [-512, 512]:
+                    who_won(result, pc2)
+                    break
+                pc_turn = False
+            else:
+                print("Column is full!")
+            end = time.time()
+            memory = (resource.getrusage(resource.RUSAGE_SELF).ru_maxrss) / 1000
+            print("Time to play: %f s" % (end - start))
+            print("Memory used: %s MB" % memory)
+            print("Number of generated nodes: %d" % n_nodes)
+            n_nodes = 0
 
 
 def start_game(option):
     board = Board()
     if option == 1:
         player_player(board)
-    else:
+    elif option == 2:
         player_pc(board)
+    else:
+        pc_pc(board)
         
 
 def main():
     print("Connect Four:")
     print("1: Player vs Player")
     print("2: Player vs PC")
+    print("3: PC vs PC")
     option = int(input("Option: "))
     start_game(option)
 
