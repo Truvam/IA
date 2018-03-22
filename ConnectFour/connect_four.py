@@ -21,7 +21,6 @@ class Board:
     def __init__(self):
         self.board = [["_" for j in range(width)] for i in range(height)]
         self.column = 0
-        self.value = 0
 
     def play(self, column, player):
         """
