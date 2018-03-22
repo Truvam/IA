@@ -24,6 +24,15 @@ class Board:
         self.value = 0
 
     def play(self, column, player):
+        """
+        This function is used to place the piece, of the chosen column,
+        in the board.
+        :param column: column where piece enters;
+        :param player: the player that places the piece
+        :return: returns True or False whether the piece was placed
+        successfully.
+        """
+
         placed = False
         for i in range(height-1, -1, -1):
             if self.board[i][column] == empty:
@@ -38,6 +47,11 @@ class Board:
             return placed
 
     def is_draw(self):
+        """
+        This counts each piece in the board, to check if it is a draw.
+        :return: returns True or False whether the current board state is a
+        draw.
+        """
         cont = 0
         for i in range(0, height):  # DRAW
             for j in range(0, width):
@@ -48,6 +62,13 @@ class Board:
         return False
 
     def value_aux(self, cont_x, cont_o):
+        """
+        This is the evaluation function, which help the utility in
+        order to count the points of a given board.
+        :param cont_x: number of "X" in the segment;
+        :param cont_o: number of "O" in the segment;
+        :return: returns the points.
+        """
         if cont_o == 3 and cont_x == 0:
             return -50
         elif cont_o == 2 and cont_x == 0:
@@ -63,6 +84,13 @@ class Board:
         return 0
 
     def utility(self):
+        """
+        This is used in conjunction with the value_aux, to verify if the
+        current board is win or loss and to return the sum of the evaluation
+        points.
+        :return: returns 0 if it's draw, 512 if won, -512 if lost and the
+        sum of the evaluation function.
+        """
         if self.is_draw():
             return 0
         cont_x = 0
@@ -178,6 +206,13 @@ def who_won(result, player):
 
 
 def successors(board, player):
+    """
+    This creates all the possible moves that a player can make in the current
+    board.
+    :param board: current board state;
+    :param player: current player;
+    :return: returns a list of the board successors.
+    """
     global n_nodes
     temp_board = copy.deepcopy(board)
     child_list = list()
@@ -191,9 +226,15 @@ def successors(board, player):
 
 
 def min_max(board, depth):
+    """
+    Minimax algorithm.
+    :param board: current board state;
+    :param depth: maximum depth;
+    :return: returns the column.
+    """
     value = float("-inf")
     column = 0
-    for s in successors(board, pc):
+    for s in successors(board, pc):  # maximizer player
         v = min_value(s, depth - 1)
         if v >= value:
             value = v
@@ -202,6 +243,12 @@ def min_max(board, depth):
  
 
 def min_value(board, depth):
+    """
+    Minimizing Player.
+    :param board: current board state;
+    :param depth: current depth;
+    :return: returns the best value.
+    """
     value = board.utility()
     if depth == 0 or value in [-512, 512] or board.is_draw():
         return value
@@ -212,6 +259,12 @@ def min_value(board, depth):
     
 
 def max_value(board, depth):
+    """
+    Maximizing Player.
+    :param board: current board state;
+    :param depth: current depth;
+    :return: returns the best value.
+    """
     value = board.utility()
     if depth == 0 or value in [-512, 512] or board.is_draw():
         return value
@@ -222,6 +275,12 @@ def max_value(board, depth):
     
 
 def alpha_beta(board, depth, alpha, beta):
+    """
+    Alpha-beta algorithm.
+    :param board: current board state;
+    :param depth: maximum depth;
+    :return: returns the column.
+    """
     value = float("-inf")
     column = 0
     for s in successors(board, pc):
@@ -235,6 +294,12 @@ def alpha_beta(board, depth, alpha, beta):
  
 
 def min_value_ab(board, depth, alpha, beta):
+    """
+    Minimizing Player.
+    :param board: current board state;
+    :param depth: current depth;
+    :return: returns the best value.
+    """
     value = board.utility()
     if depth == 0 or value in [-512, 512] or board.is_draw():
         return value
@@ -248,6 +313,12 @@ def min_value_ab(board, depth, alpha, beta):
     
 
 def max_value_ab(board, depth, alpha, beta):
+    """
+    Maximizing Player.
+    :param board: current board state;
+    :param depth: current depth;
+    :return: returns the best value.
+    """
     value = board.utility()
     if depth == 0 or value in [-512, 512] or board.is_draw():
         return value
@@ -261,6 +332,10 @@ def max_value_ab(board, depth, alpha, beta):
     
 
 def player_player(board):
+    """
+    Function that initializes the player vs player mode.
+    :param board: Empty board;
+    """
     print("1: Player1")
     print("2: Player2")
     plays_first = input("Who plays first? [1/2]: ")
@@ -325,6 +400,10 @@ def player_player(board):
 
 
 def player_pc(board):
+    """
+    Function that initializes the player vs pc mode.
+    :param board: Empty board;
+    """
     global max_depth
     global n_nodes
     print("1: AI - MiniMax")
@@ -395,6 +474,10 @@ def player_pc(board):
 
 
 def pc_pc(board):
+    """
+    Function that initializes the pc vs pc mode.
+    :param board: Empty board;
+    """
     global max_depth
     global n_nodes
     print("1: AI - MiniMax")
