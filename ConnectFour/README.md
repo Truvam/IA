@@ -21,7 +21,7 @@ Option: 2
 Option: 2
 Difficulty:
 Depth: 4 (Easy)  Depth: 6 (Medium)  Depth: 8 (Hard)
-Depth: 5
+Depth: 6
 Do you want to play first? [y/n]: y
   0 1 2 3 4 5 6
  _______________
@@ -33,8 +33,12 @@ Do you want to play first? [y/n]: y
 | _ _ _ _ _ _ _ |
  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 You are 'O' and PC is 'X'
+Press ? if you want the best move.
 Your turn.
-Choose column: 2
+Choose column: ?
+Best move: column 3
+Your turn.
+Choose column: 3
   0 1 2 3 4 5 6
  _______________
 | _ _ _ _ _ _ _ |
@@ -42,7 +46,7 @@ Choose column: 2
 | _ _ _ _ _ _ _ |
 | _ _ _ _ _ _ _ |
 | _ _ _ _ _ _ _ |
-| _ _ O _ _ _ _ |
+| _ _ _ O _ _ _ |
  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 PC turn.
   0 1 2 3 4 5 6
@@ -51,12 +55,12 @@ PC turn.
 | _ _ _ _ _ _ _ |
 | _ _ _ _ _ _ _ |
 | _ _ _ _ _ _ _ |
-| _ _ X _ _ _ _ |
-| _ _ O _ _ _ _ |
+| _ _ _ X _ _ _ |
+| _ _ _ O _ _ _ |
  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-Time to play: 1.090269 s
-Memory used: 6.832 MB
-Number of generated nodes: 9401
+Time to play: 4.811264 s
+Memory used: 6.868 MB
+Number of generated nodes: 84819
 Your turn.
 Choose column: 2
 ```
