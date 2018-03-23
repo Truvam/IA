@@ -345,12 +345,16 @@ def player_player(board):
 
     board.print_board()
     print("Player1 is 'X' and Player2 is 'O'")
+    print("Press ? if you want the best move.")
     while True:
         if not p1_turn:
             print("Player1 turn.")
             column = input("Choose column: ")
             if column == "":
                 print("You forgot to enter the column!")
+            elif column == "?":
+                c = alpha_beta(board, 6, float("-inf"), float("+inf"))
+                print("Best move: column %d" % c)
             else:
                 column = int(column)
                 if column == -1:
@@ -376,6 +380,9 @@ def player_player(board):
             column = input("Choose column: ")
             if column == "":
                 print("You forgot to enter the column!")
+            elif column == "?":
+                c = alpha_beta(board, 6, float("-inf"), float("+inf"))
+                print("Best move: column %d" % c)
             else:
                 column = int(column)
                 if column == -1:
@@ -420,12 +427,16 @@ def player_pc(board):
 
     board.print_board()
     print("You are 'O' and PC is 'X'")
+    print("Press ? if you want the best move.")
     while True:
         if not pc_turn:
             print("Your turn.")
             column = input("Choose column: ")
             if column == "":
                 print("You forgot to enter the column!")
+            elif column == "?":
+                c = alpha_beta(board, depth, float("-inf"), float("+inf"))
+                print("Best move: column %d" % c)
             else:
                 column = int(column)
                 if column == -1:
