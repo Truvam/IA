@@ -58,7 +58,8 @@ class Database:
             print(str(e))
             return False
 
-    def print_database(self, place1=None, place2=None):
+    def print_database(self, place1=None, place2=None, days=0):
+        days_list = list()
         found = False
         for route in self.Route:
             if route.Place1 == place1 and route.Place2 == place2 or place1 is\
@@ -73,15 +74,52 @@ class Database:
                                    route.Flights[
                         i].arrivalTime, route.Flights[i].flightNumber,
                                    route.Flights[i].listDays])
+                    days_list.append(route.Flights[i].listDays)
+                    found = True
                 print(table)
                 print()
-                found = True
-        return found
+        if days == 1:
+            return days_list
+        else:
+            return found
 
 
 def direct_flights(place1, place2, db):
-    if not db.print_database(place1=place1, place2=place2):
+    days = db.print_database(place1=place1, place2=place2, days=1)
+    if len(days) == 0:
         print("No direct flights from " + place1 + " to " + place2 + ".")
+    else:
+        try:
+            days.index("alldays")
+            print("There are direct flights all days.")
+        except ValueError:
+            print("Days available: ", end="")
+            days_list = entire_days(days)
+            if len(days_list) == 7:
+                print("There are direct flights all days.")
+            else:
+                i = 0
+                for day in days_list:
+                    if i == len(days_list) - 1:
+                        print(day)
+                    else:
+                        print(day + ", ", end="")
+                    i += 1
+
+
+def entire_days(days):
+    days_list = list()
+    entire_days = {"su": "Sunday", "mo": "Monday", "tu": "Tuesday",
+                   "we": "Wednesday", "th": "Thursday", "fr": "Friday",
+                   "sa": "Saturday"}
+    for day in days:
+        if len(day) > 4:
+            day = day.split(",")
+            for d in day:
+                days_list.append(entire_days[d])
+        else:
+            days_list.append(entire_days[day])
+    return set(days_list)
 
 
 def main():
@@ -101,10 +139,10 @@ def main():
     if option == 1:
         place1 = input("Place1: ")
         place2 = input("Place2: ")
+        direct_flights(place1, place2, db)
     elif option == 2:
         place1 = input("Place1: ")
         place2 = input("Place2: ")
-        direct_flights(place1, place2, db)
     else:
         cities = list()
         initial_city = input("Initial City: ")
