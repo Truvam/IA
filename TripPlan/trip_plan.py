@@ -80,9 +80,8 @@ class Database:
 
 
 def direct_flights(place1, place2, db):
-    print("Direct flights")
     if not db.print_database(place1=place1, place2=place2):
-        print("No direct flights from %s to %s" % place1, place2)
+        print("No direct flights from " + place1 + " to " + place2 + ".")
 
 
 def main():
