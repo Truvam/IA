@@ -35,8 +35,6 @@ timetable(milan,zurich,
 [ 9:25/10:15/sr621/alldays,
 12:45/13:35/sr623/alldays]).
 
-timetable(zurich,ljubljana,
-[13:30/14:40/yu323/[tu,th]]).
 
 timetable(zurich,london,
 [ 9:00/9:40/ba613/[mo,tu,we,th,fr,sa],
@@ -44,3 +42,6 @@ timetable(zurich,london,
 
 timetable(zurich,milan,
 [ 7:55/8:45/sr620/alldays]).
+
+timetable(zurich,ljubljana,
+[13:30/14:40/yu323/[tu,th]]).
