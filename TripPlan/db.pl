@@ -27,21 +27,20 @@ timetable(ljubljana,london,
 [11:10/12:20/yu200/[fr],
 11:25/12:20/yu212/[su]]).
 
-timetable(milan,london,
-[ 9:10/10:00/az458/alldays,
-12:20/13:10/ba511/alldays]).
-
 timetable(milan,zurich,
 [ 9:25/10:15/sr621/alldays,
 12:45/13:35/sr623/alldays]).
 
-
-timetable(zurich,london,
-[ 9:00/9:40/ba613/[mo,tu,we,th,fr,sa],
-16:10/16:55/sr806/[mo,tu,we,th,fr,su]]).
+timetable(milan,london,
+[ 9:10/10:00/az458/alldays,
+12:20/13:10/ba511/alldays]).
 
 timetable(zurich,milan,
 [ 7:55/8:45/sr620/alldays]).
 
 timetable(zurich,ljubljana,
 [13:30/14:40/yu323/[tu,th]]).
+
+timetable(zurich,london,
+[ 9:00/9:40/ba613/[mo,tu,we,th,fr,sa],
+16:10/16:55/sr806/[mo,tu,we,th,fr,su]]).
