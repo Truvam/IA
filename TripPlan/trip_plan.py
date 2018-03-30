@@ -69,9 +69,8 @@ class Database:
                 if not destination:
                     print("\nStarting : " + route.Place1)
                     print("Destination: " + route.Place2)
-                    table = PrettyTable(["Departure Time", "Arrival Time", "Flight "
-                                                                           "Number",
-                                         "Days"])
+                    table = PrettyTable(["Departure Time", "Arrival Time",
+                                         "Flight Number", "Days"])
                     for i in range(len(route.Flights)):
                         table.add_row([route.Flights[i].departureTime,
                                        route.Flights[
@@ -115,36 +114,40 @@ def direct_flights(place1, place2, db):
 
 
 def get_route(place1, place2, db, r=list()):
-    r.append(place1)
-    place3 = ""
+    max_depth = 10
     found = False
-    if not db.print_database(place1, place2):
-        while True:
-            for route in db.Route:
-                if route.Place1 == place1 and route.Place2 == place2:
-                    r.append(place2)
-                    found = True
-                    break
-                elif route.Place1 == place3 and route.Place2 == place2:
-                    r.append(place2)
-                    found = True
-                    break
-                elif route.Place1 == place1:
-                    place3 = route.Place2
-                    r.append(place3)
-                    break
-            if found:
-                break
-        if found:
-            print("\n\nROUTE: Starting: " + r[0], end="")
-            for i in range(1, len(r)):
-                print(" ---> " + r[i], end="")
-            print(" :Destination")
-            print("\nAvailable flights:")
-            for i in range(0, len(r)-1):
-                db.print_database(r[i], r[i+1])
-        else:
-            print("There are no available flights.")
+    depth = 0
+    while not found:
+        route_list = next_route(place1, db)
+        if len(route_list) == 0 or depth >= max_depth:
+            break
+        r.append(place1)
+        for place in route_list:
+            if place == place2:
+                r.append(place2)
+                found = True
+            else:
+                place1 = place
+        depth += 1
+
+    if found:
+        print("\n\nROUTE: Starting: " + r[0], end="")
+        for i in range(1, len(r)):
+            print(" ---> " + r[i], end="")
+        print(" :Destination")
+        print("\nAvailable flights:")
+        for i in range(0, len(r) - 1):
+            db.print_database(r[i], r[i + 1])
+    else:
+        print("There are no available flights.")
+
+
+def next_route(place, db):
+    route_list = list()
+    for route in db.Route:
+        if route.Place1 == place:
+            route_list.append(route.Place2)
+    return route_list
 
 
 def entire_days(days):
