@@ -113,10 +113,12 @@ def direct_flights(place1, place2, db):
                     i += 1
 
 
-def get_route(place1, place2, db, r=list()):
+def get_route(place1, place2, db, multiple=False):
     max_depth = 10
     found = False
     depth = 0
+    r = list()
+    initial_place = place1
     while not found:
         route_list = next_route(place1, db)
         if len(route_list) == 0 or depth >= max_depth:
@@ -131,15 +133,41 @@ def get_route(place1, place2, db, r=list()):
         depth += 1
 
     if found:
-        print("\n\nROUTE: Starting: " + r[0], end="")
-        for i in range(1, len(r)):
-            print(" ---> " + r[i], end="")
-        print(" :Destination")
-        print("\nAvailable flights:")
-        for i in range(0, len(r) - 1):
-            db.print_database(r[i], r[i + 1])
+        if not multiple:
+            print("\nROUTE: Starting: " + r[0], end="")
+            for i in range(1, len(r)):
+                print(" ---> " + r[i], end="")
+            print(" :Destination")
+            print("\nAvailable flights:")
+            for i in range(0, len(r) - 1):
+                db.print_database(r[i], r[i + 1])
+        else:
+            return r
     else:
-        print("There are no available flights.")
+        print("There are no available flights from " + initial_place + " to " +
+              place2 + ".")
+
+
+def multiple_cities(initial_city, cities, start_day, return_day, db):
+    end_city = initial_city
+    r = list()
+    for city in cities:
+        for route in get_route(initial_city, city, db, multiple=True):
+            r.append(route)
+        initial_city = city
+    for route in get_route(initial_city, end_city, db, multiple=True):
+        r.append(route)
+
+    print("\nROUTE: Starting: " + r[0], end="")
+    before = ""
+    for i in range(1, len(r)):
+        if before != r[i]:
+            print(" ---> " + r[i], end="")
+        before = r[i]
+    print(" :Destination")
+    print("\nAvailable flights:")
+    for i in range(0, len(r) - 1):
+        db.print_database(r[i], r[i + 1])
 
 
 def next_route(place, db):
@@ -183,21 +211,31 @@ def main():
     if option == 1:
         place1 = input("Place1: ")
         place2 = input("Place2: ")
-        direct_flights(place1, place2, db)
+        if place1 == place2:
+            print("Place1 is the same as Place2.")
+        else:
+            direct_flights(place1, place2, db)
     elif option == 2:
         place1 = input("Place1: ")
         place2 = input("Place2: ")
-        get_route(place1, place2, db)
+        if place1 == place2:
+            print("Place1 is the same as Place2")
+            op = input("Are you sure you want to continue? [y/n]: ")
+            if op == "y" or "yes":
+                get_route(place1, place2, db)
+        else:
+            get_route(place1, place2, db)
     else:
         cities = list()
         initial_city = input("Initial City: ")
         start_day = input("Starting day: ")
         return_day = input("Returning day: ")
-        n = int(input("How many cities do you want to visit? "))
-        print("Which cities do you want to visit?")
+        n = int(input("How many cities do you need to visit? "))
+        print("Which cities do you need to visit?")
         for i in range(n):
             city = input("City %d: " % (i + 1))
             cities.append(city)
+        multiple_cities(initial_city, cities, start_day, return_day, db)
 
 
 if __name__ == "__main__":
