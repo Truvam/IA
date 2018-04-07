@@ -187,7 +187,8 @@ def contains_days(route, start_day, return_day):
     if start_day is "" or return_day is "":
         return True
     for i in range(len(route.Flights)):
-        if start_day in route.Flights[i].listDays or "alldays" in route.Flights[i].listDays:
+        if start_day in route.Flights[i].listDays or "alldays" in \
+                route.Flights[i].listDays:
             return True
     return False
 
