@@ -24,7 +24,7 @@ deptime([_-_:_:Dep_time|_], Dep_time).
 transfer(Hr1:Min1, Hr2:Min2) :- 60 * (Hr2 - Hr1) + (Min2 - Min1) >= 40.
 
 direct_flights(Place1, Place2, Day) :-
-    travel_days(alldays, Day),
+    travel_days(Day, alldays),
     flight(Place1, Place2, Day, _, _, _).
 
 route(Place1, Place2, Day, [Place1-Place2:Flight_num:Dep_time]) :-
