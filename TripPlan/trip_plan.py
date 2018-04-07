@@ -151,23 +151,28 @@ def get_route(place1, place2, db, multiple=False):
 def multiple_cities(initial_city, cities, start_day, return_day, db):
     end_city = initial_city
     r = list()
-    for city in cities:
-        for route in get_route(initial_city, city, db, multiple=True):
-            r.append(route)
-        initial_city = city
-    for route in get_route(initial_city, end_city, db, multiple=True):
-        r.append(route)
-
-    print("\nROUTE: Starting: " + r[0], end="")
-    before = ""
-    for i in range(1, len(r)):
-        if before != r[i]:
-            print(" ---> " + r[i], end="")
-        before = r[i]
-    print(" :Destination")
-    print("\nAvailable flights:")
-    for i in range(0, len(r) - 1):
-        db.print_database(r[i], r[i + 1])
+    try:
+        for city in cities:
+            for route in get_route(initial_city, city, db, multiple=True):
+                r.append(route)
+            initial_city = city
+        for route in get_route(initial_city, end_city, db, multiple=True):
+                r.append(route)
+  
+        print("\nAvailable flights:")
+        for i in range(0, len(r) - 1):
+            db.print_database(r[i], r[i + 1])
+            
+        print("\nROUTE: Starting: " + r[0], end="")
+        before = ""
+        for i in range(1, len(r)):
+            if before != r[i]:
+                print(" ---> " + r[i], end="")
+            before = r[i]
+        print(" :Destination")
+        print()
+    except TypeError:
+        pass
 
 
 def next_route(place, db):
@@ -176,6 +181,15 @@ def next_route(place, db):
         if route.Place1 == place:
             route_list.append(route.Place2)
     return route_list
+
+
+def contains_days(route, start_day, return_day):
+    if start_day is "" or return_day is "":
+        return True
+    for i in range(len(route.Flights)):
+        if start_day in route.Flights[i].listDays or "alldays" in route.Flights[i].listDays:
+            return True
+    return False
 
 
 def entire_days(days):
@@ -228,13 +242,33 @@ def main():
     else:
         cities = list()
         initial_city = input("Initial City: ")
-        start_day = input("Starting day: ")
-        return_day = input("Returning day: ")
-        n = int(input("How many cities do you need to visit? "))
-        print("Which cities do you need to visit?")
-        for i in range(n):
-            city = input("City %d: " % (i + 1))
-            cities.append(city)
+        
+        available_days = ["su", "mo", "tu", "we", "th", "fr", "sa"]
+        print("Available days: ", end="")
+        print(available_days)
+        while True:
+            start_day = input("Starting day: ")
+            if start_day in available_days:
+                break
+            else:
+                print("Day doesn't exist")
+        while True:
+            return_day = input("Returning day: ")
+            if return_day in available_days:
+                break
+            else:
+                print("Day doesn't exist")
+        
+        while True:
+            try:
+                n = int(input("How many cities do you need to visit? "))
+                print("Which cities do you need to visit?")
+                for i in range(n):
+                    city = input("City %d: " % (i + 1))
+                    cities.append(city)
+                break
+            except ValueError:
+                print("Needs to be an interger bigger than 0")
         multiple_cities(initial_city, cities, start_day, return_day, db)
 
 
