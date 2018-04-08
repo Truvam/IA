@@ -1,0 +1,43 @@
+% start S
+# Based on http://www.nltk.org/book/ch09.html#code-feat0cfg
+
+# ###################
+# Grammar Productions
+# ###################
+
+# S expansion productions
+S -> NP[G=?g, NUM=?n] VP[NUM=?n]
+
+# NP expansion productions
+NP[G=?g, NUM=?n] -> N[G=?g, NUM=?n]
+NP[G=?g, NUM=?n] -> Det[G=?g, NUM=?n] N[G=?g, NUM=?n]
+
+# P expansion productions
+P[G=?g, NUM=?n] -> Prep[G=?g, NUM=?n] NP
+
+# VP expansion productions
+VP[NUM=?n] -> V[NUM=?n]
+VP[NUM=?n] -> V[NUM=?n] NP
+VP[NUM=?n] -> V[NUM=?n] P
+
+# ###################
+# Lexical Productions
+# ###################
+
+Det[G=f, NUM=sg] -> 'A' | 'a'
+Det[G=m, NUM=sg] -> 'O' | 'o'
+Det[G=f, NUM=pl] -> 'As' | 'as'
+Det[G=m, NUM=pl] -> 'Os' | 'os'
+
+N[G=f, NUM=sg] -> 'cidade' | 'floresta' | 'mae' | 'menina' | 'noticia' | 'porta' | 'vida'
+N[G=m, NUM=sg] -> 'cacador' | 'cachorro' | 'mar' | 'martelo' | 'rio' | 'rosto' | 'sino' | 'tambor' | 'tempo' | 'vento'
+N[G=f, NUM=pl] -> 'lagrimas' | 'meninas'
+N[G=m, NUM=pl] -> 'lobos' | 'tambores'
+
+V[NUM=sg] -> 'bateu' | 'corre' | 'correu'
+V[NUM=pl] -> 'bateram' | 'corriam' | 'correram'
+
+Prep[G=f, NUM=sg] -> 'na' | 'para' | 'pela'
+Prep[G=m, NUM=sg] -> 'com' | 'no' | 'pelo'
+
+Prep[G=f, NUM=pl] -> 'nas'
