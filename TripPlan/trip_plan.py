@@ -269,7 +269,7 @@ def main():
                     cities.append(city)
                 break
             except ValueError:
-                print("Needs to be an interger bigger than 0")
+                print("Needs to be an integer bigger than 0")
         multiple_cities(initial_city, cities, start_day, return_day, db)
 
 
