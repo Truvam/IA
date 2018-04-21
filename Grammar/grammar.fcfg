@@ -1,6 +1,6 @@
-% start S
 # Based on http://www.nltk.org/book/ch09.html#code-feat0cfg
 
+% start S
 # ###################
 # Grammar Productions
 # ###################
@@ -12,8 +12,10 @@ S -> NP[G=?g, NUM=?n] VP[NUM=?n]
 NP[G=?g, NUM=?n] -> N[G=?g, NUM=?n]
 NP[G=?g, NUM=?n] -> Det[G=?g, NUM=?n] N[G=?g, NUM=?n]
 
+NP_Det[G=?g, NUM=?n] -> Det[G=?g, NUM=?n] N[G=?g, NUM=?n]
 # P expansion productions
-P[G=?g, NUM=?n] -> Prep[G=?g, NUM=?n] NP
+P[G=?g, NUM=?n] -> Prep[G=?g, NUM=?n] NP[G=?g, NUM=?n]
+P[G=?g, NUM=?n] -> Prep[G=?g, NUM=?n] NP_Det
 
 # VP expansion productions
 VP[NUM=?n] -> V[NUM=?n]
