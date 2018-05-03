@@ -1,37 +1,22 @@
-import math
+from math import log
 
 
-class Node:
-    def __init__(self, attribute, value, class_, counter):
-        self.attribute = attribute
-        self.value = value
-        self.class_ = class_
-        self.counter = counter
-
-
-class DecisionTree:
-    def __init__(self):
-        self.Node = None
-        self.examples = None
-        self.attributes = None
-
-
-def entropy(examples, target_attr):
+def entropy(examples, attributes, target_attr):
     """
-    Calculates the entropy of a examples set for the target attribute.
+    Calculates the entropy of examples set for the target attribute.
     :param examples: examples set
     :param target_attr: target attribute
     :return: returns the calculated entropy
     """
-    frequency = {}  # contains all values from  from examples set + frequency
+    frequency = {}  # contains all values from  from examples + frequency
     total_freq = {}
     entropy = 0.0
-    print("Length: %d" % examples.length)
+    print("Length: %d" % len(examples))
     print("Target Attribute: " + target_attr)
-    target_index = examples.attributes.index(target_attr)
-    class_index = examples.length - 1
+    target_index = attributes.index(target_attr)
+    class_index = -1
     print("Attribute index: %d" % target_index)
-    for value in examples.values:
+    for value in examples:
         if (value[target_index], value[class_index]) in frequency:
             frequency[(value[target_index], value[class_index])] += 1.0
         else:
@@ -49,12 +34,12 @@ def entropy(examples, target_attr):
     print(values)
     print(classes)
     for v in values:
-        x = total_freq[v]/examples.length
-        y = 0
+        x = total_freq[v]/len(examples)
+        y = 0.0
         for cl in classes:
             if (v, cl) in frequency:
-                y += (-frequency[v, cl]/examples.length) * \
-                     math.log(frequency[v, cl]/examples.length, 2)
+                y += (-frequency[v, cl]/len(examples)) * \
+                     log(frequency[v, cl]/len(examples), 2)
         entropy += x * y
     print("Entropy: %f" % entropy, end='\n\n')
     return entropy
@@ -62,30 +47,93 @@ def entropy(examples, target_attr):
 
 def choose_attribute(examples, attributes):
     """
-    Finds the attribute that best classifies examples
-    :param examples:
-    :param attributes:
-    :return: returns the best attribute found
+    Finds the attribute that best classifies examples.
+    :param examples: examples values;
+    :param attributes: list of attributes from csv file;
+    :return: returns the best attribute found.
     """
     min_value = float("+inf")
     best_attr = None
-    for attr in attributes:
-        entropy_value = entropy(examples, attr)
+    for attr in attributes[1:-1]:
+        entropy_value = entropy(examples, attributes, attr)
         if entropy_value < min_value:
             min_value = entropy_value
             best_attr = attr
     return best_attr
 
 
-def id3(examples, attributes, target_attr):
-    if sum(x > 0 for x in examples) and not sum(x < 0 for x in examples):
-        print("Positive")
-    if sum(x < 0 for x in examples) and not sum(x > 0 for x in examples):
-        print("Negative")
+def majority_value(examples, attributes, target_attr):
+    frequency = {}
+    target_index = attributes.index(target_attr)
+    for value in examples:
+        if value[target_index] in frequency:
+            frequency[value[target_index]] += 1
+        else:
+            frequency[value[target_index]] = 1
 
+    max_value = float("-inf")
+    val = ""
+    for key in frequency.keys():
+        if frequency[key] > max_value:
+            max_value = frequency[key]
+            val = key
+    return val
+
+
+def get_values(examples, attributes, target_attr):
+    target_index = attributes.index(target_attr)
+    target_values = list()
+    for value in examples:
+        if value[target_index] not in target_values:
+            target_values.append(value[target_index])
+    return target_values
+
+
+def get_examples(examples, attributes, target_attr, val):
+    target_index = attributes.index(target_attr)
+    new_examples = list(list())
+    for value in examples:
+        if value[target_index] == val:
+            new_value = list()
+            for i in range(0, len(value)):
+                if i != target_index:
+                    new_value.append(value[i])
+            new_examples.append(new_value)
+    return new_examples
+
+
+def id3(examples, attributes, target_attr):
+    """
+    Based on:
+    http://www.onlamp.com/pub/a/python/2006/02/09/ai_decision_trees.html
+
+    """
+
+    print(target_attr)
+    print(attributes)
+    target_index = attributes.index(target_attr)
+    print("Target Index: %d" % target_index)
+    print(examples)
+    values = [value[target_index] for value in examples]
+    print(values)
+
+    if not examples or (len(attributes) - 2) <= 0:
+        return majority_value(examples, attributes, target_attr)
+    elif values.count(values[0]) == len(values):
+        return values[0]
     else:
-        tree = DecisionTree()
         best_attr = choose_attribute(examples, attributes)
-        print(best_attr)
-        tree.Node = best_attr
-        # What possible values?
+        tree = {best_attr: {}}
+
+        for value in get_values(examples, attributes, best_attr):
+            new_examples = get_examples(examples, attributes, best_attr, value)
+
+            new_attr = attributes[:]
+            new_attr.remove(best_attr)
+
+            subtree = id3(new_examples, new_attr, target_attr)
+
+            tree[best_attr][value] = subtree
+            print(tree)
+
+        return tree
