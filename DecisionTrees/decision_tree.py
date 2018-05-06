@@ -11,11 +11,9 @@ def entropy(examples, attributes, target_attr):
     frequency = {}  # contains all values from  from examples + frequency
     total_freq = {}
     entropy = 0.0
-    print("Length: %d" % len(examples))
-    print("Target Attribute: " + target_attr)
     target_index = attributes.index(target_attr)
     class_index = -1
-    print("Attribute index: %d" % target_index)
+
     for value in examples:
         if (value[target_index], value[class_index]) in frequency:
             frequency[(value[target_index], value[class_index])] += 1.0
@@ -27,12 +25,9 @@ def entropy(examples, attributes, target_attr):
         else:
             total_freq[value[target_index]] = 1.0
 
-    print(frequency)
-    print(total_freq)
     values = list(set([x for x, y in frequency.keys()]))
     classes = list(set([y for x, y in frequency.keys()]))
-    print(values)
-    print(classes)
+
     for v in values:
         x = total_freq[v]/len(examples)
         y = 0.0
@@ -41,7 +36,7 @@ def entropy(examples, attributes, target_attr):
                 y += (-frequency[v, cl]/len(examples)) * \
                      log(frequency[v, cl]/len(examples), 2)
         entropy += x * y
-    print("Entropy: %f" % entropy, end='\n\n')
+
     return entropy
 
 
@@ -109,13 +104,8 @@ def id3(examples, attributes, target_attr):
 
     """
 
-    print(target_attr)
-    print(attributes)
     target_index = attributes.index(target_attr)
-    print("Target Index: %d" % target_index)
-    print(examples)
     values = [value[target_index] for value in examples]
-    print(values)
 
     if not examples or (len(attributes) - 2) <= 0:
         return majority_value(examples, attributes, target_attr)
@@ -134,6 +124,5 @@ def id3(examples, attributes, target_attr):
             subtree = id3(new_examples, new_attr, target_attr)
 
             tree[best_attr][value] = subtree
-            print(tree)
 
         return tree
