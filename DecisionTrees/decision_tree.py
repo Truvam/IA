@@ -40,24 +40,61 @@ def entropy(examples, attributes, target_attr):
     return entropy
 
 
-def choose_attribute(examples, attributes):
+def gain(examples, attributes, attr, target_attr):
+    """
+    Calculates the information gain (reduction in entropy) from the target
+    attribute.
+    :param examples:
+    :param attributes:
+    :param attr:
+    :param target_attr:
+    :return:
+    """
+    frequency = {}
+    sub_entropy = 0.0
+    target_index = attributes.index(attr)
+
+    for value in examples:
+        if value[target_index] in frequency:
+            frequency[value[target_index]] += 1.0
+        else:
+            frequency[value[target_index]] = 1.0
+
+    for key in frequency.keys():
+        prob = frequency[key] / sum(frequency.values())
+        sub_examples = [value for value in examples if value[target_index] ==
+                        key]
+        sub_entropy += prob * entropy(sub_examples, attributes, target_attr)
+
+    return entropy(examples, attributes, target_attr) - sub_entropy
+
+
+def choose_attribute(examples, attributes, target_attr):
     """
     Finds the attribute that best classifies examples.
     :param examples: examples values;
     :param attributes: list of attributes from csv file;
     :return: returns the best attribute found.
     """
-    min_value = float("+inf")
-    best_attr = None
+    max_gain = float("-inf")
+    best_attr = attributes[0]
+
     for attr in attributes[1:-1]:
-        entropy_value = entropy(examples, attributes, attr)
-        if entropy_value < min_value:
-            min_value = entropy_value
+        gain_value = gain(examples, attributes, attr, target_attr)
+        if gain_value > max_gain:
+            max_gain = gain_value
             best_attr = attr
     return best_attr
 
 
 def majority_value(examples, attributes, target_attr):
+    """
+    Returns the most common value for an attribute.
+    :param examples:
+    :param attributes:
+    :param target_attr:
+    :return:
+    """
     frequency = {}
     target_index = attributes.index(target_attr)
     for value in examples:
@@ -99,11 +136,14 @@ def get_examples(examples, attributes, target_attr, val):
 
 def id3(examples, attributes, target_attr):
     """
+    Implementation of id3 algorithm.
     Based on:
     http://www.onlamp.com/pub/a/python/2006/02/09/ai_decision_trees.html
-
+    :param examples:
+    :param attributes:
+    :param target_attr:
+    :return: returns the generated tree.
     """
-
     target_index = attributes.index(target_attr)
     values = [value[target_index] for value in examples]
 
@@ -112,7 +152,7 @@ def id3(examples, attributes, target_attr):
     elif values.count(values[0]) == len(values):
         return values[0]
     else:
-        best_attr = choose_attribute(examples, attributes)
+        best_attr = choose_attribute(examples, attributes, target_attr)
         tree = {best_attr: {}}
 
         for value in get_values(examples, attributes, best_attr):
