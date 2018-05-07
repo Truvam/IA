@@ -4,7 +4,7 @@ from math import log
 def entropy(examples, attributes, target_attr):
     """
     Calculates the entropy of examples set for the target attribute.
-    :param examples: examples set
+    :param examples: examples values
     :param target_attr: target attribute
     :return: returns the calculated entropy
     """
@@ -44,11 +44,11 @@ def gain(examples, attributes, attr, target_attr):
     """
     Calculates the information gain (reduction in entropy) from the target
     attribute.
-    :param examples:
-    :param attributes:
-    :param attr:
-    :param target_attr:
-    :return:
+    :param examples: examples values;
+    :param attributes: list of attributes;
+    :param attr: chosen attribute;
+    :param target_attr: target attribute;
+    :return: information gain calculated.
     """
     frequency = {}
     sub_entropy = 0.0
@@ -73,7 +73,7 @@ def choose_attribute(examples, attributes, target_attr):
     """
     Finds the attribute that best classifies examples.
     :param examples: examples values;
-    :param attributes: list of attributes from csv file;
+    :param attributes: list of attributes;
     :return: returns the best attribute found.
     """
     max_gain = float("-inf")
@@ -90,10 +90,10 @@ def choose_attribute(examples, attributes, target_attr):
 def majority_value(examples, attributes, target_attr):
     """
     Returns the most common value for an attribute.
-    :param examples:
-    :param attributes:
-    :param target_attr:
-    :return:
+    :param examples: examples values;
+    :param attributes: list of attributes;
+    :param target_attr: target attribute;
+    :return: the most common value for an attribute.
     """
     frequency = {}
     target_index = attributes.index(target_attr)
@@ -113,6 +113,13 @@ def majority_value(examples, attributes, target_attr):
 
 
 def get_values(examples, attributes, target_attr):
+    """
+    Gets the values from a specific target/column.
+    :param examples: examples values;
+    :param attributes: list of attributes;
+    :param target_attr: target attribute;
+    :return: returns a list containing all values from target;
+    """
     target_index = attributes.index(target_attr)
     target_values = list()
     for value in examples:
@@ -122,6 +129,14 @@ def get_values(examples, attributes, target_attr):
 
 
 def get_examples(examples, attributes, target_attr, val):
+    """
+    Gets the rows where the value in target attribute is val;
+    :param examples: examples values;
+    :param attributes: list of attributes;
+    :param target_attr: target attribute;
+    :param val: value to compare;
+    :return: returns a new examples list.
+    """
     target_index = attributes.index(target_attr)
     new_examples = list(list())
     for value in examples:
@@ -139,9 +154,9 @@ def id3(examples, attributes, target_attr):
     Implementation of id3 algorithm.
     Based on:
     http://www.onlamp.com/pub/a/python/2006/02/09/ai_decision_trees.html
-    :param examples:
-    :param attributes:
-    :param target_attr:
+    :param examples: examples values;
+    :param attributes: list of attributes;
+    :param target_attr: target attribute;
     :return: returns the generated tree.
     """
     target_index = attributes.index(target_attr)
@@ -169,6 +184,13 @@ def id3(examples, attributes, target_attr):
 
 
 def classify(tree, examples, attributes):
+    """
+    Used to classify new test examples.
+    :param tree: tree generated from id3;
+    :param examples: new examples values;
+    :param attributes: list of attributes;
+    :return: returns a list containing the class results.
+    """
     class_result = list()
     for row in examples:
         result = classify_aux(tree, examples, attributes, row)
