@@ -6,7 +6,9 @@ import glob
 import sys
 from prettytable import PrettyTable
 from decision_tree import id3
+import pydot
 frequency = {}
+graph = None
 
 
 class Data:
@@ -59,24 +61,35 @@ def count_value(values, attributes, key):
             frequency[(key, val[attr_index], val[-1])] = 1
 
 
-def print_tree(values, attributes, tree, level=0, before=""):
+def draw(parent, child, label=""):
+    global graph
+    edge = pydot.Edge(parent, child)
+    edge.set_label(label)
+    graph.add_edge(edge)
+
+
+def print_tree(values, attributes, tree, level=0, parent=None, label=""):
     if not tree or len(tree) == 0:
         print("\t" * level, "-")
     else:
-        key_before = ""
         for key, value in tree.items():
             if isinstance(value, dict):
                 if key in attributes:
                     print("\t" * level, "<" + key + ">:")
                     count_value(values, attributes, key)
-                    key_before = key
+                    if parent and graph:
+                        draw(parent, key, label)
                 else:
                     print("\t" * level, key + ":")
-                # print(frequency)
-                print_tree(values, attributes, value, level+1, key_before)
+                    label = key
+                    key = parent
+                print_tree(values, attributes, value, level+1, key, label)
             else:
                 print("\t" * level, key + ":", value,
-                      "(" + str(frequency[(before, key, value)]) + ")")
+                      "(" + str(frequency[(parent, key, value)]) + ")")
+                if graph:
+                    draw(parent, value + " (" +
+                         str(frequency[(parent, key, value)]) + ")", label=key)
 
 
 def main():
@@ -89,7 +102,16 @@ def main():
     target_attr = data.attributes[-1]
     tree = id3(data.values, data.attributes, target_attr)
 
-    print_tree(data.values, data.attributes, tree)
+    op = input("Do you want to create picture of tree graph? [y/n]: ")
+    if op in 'yY' or op in 'yesYes':
+        global graph
+        graph = pydot.Dot(graph_type='graph')
+        print_tree(data.values, data.attributes, tree)
+        f_name = data.name.split('.')[1][1:] + '.png'
+        graph.write_png(f_name)
+        print("Generated graph to file:", f_name)
+    else:
+        print_tree(data.values, data.attributes, tree)
 
 
 if __name__ == "__main__":
