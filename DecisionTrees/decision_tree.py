@@ -166,3 +166,24 @@ def id3(examples, attributes, target_attr):
             tree[best_attr][value] = subtree
 
         return tree
+
+
+def classify(tree, examples, attributes):
+    class_result = list()
+    for row in examples:
+        result = classify_aux(tree, examples, attributes, row)
+        class_result.append(result)
+    return class_result
+
+
+def classify_aux(tree, examples, attributes, row):
+    result = ""
+    while isinstance(tree, dict):
+        root = next(iter(tree))
+        tree = tree[root]
+        index = attributes.index(root)
+        value = row[index]
+        if value in tree.keys():
+            result = tree[value]
+            tree = tree[value]
+    return result

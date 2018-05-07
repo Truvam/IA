@@ -5,7 +5,7 @@ import csv
 import glob
 import sys
 from prettytable import PrettyTable
-from decision_tree import id3
+from decision_tree import id3, classify
 import pydot
 frequency = {}
 graph = None
@@ -18,11 +18,13 @@ class Data:
         self.values = rows
         self.length = len(rows)
 
-    def print_data(self):
+    def print_data(self, data=None, test=None):
         print(self.name)
         table = PrettyTable(self.attributes)
         for row in self.values:
             table.add_row(row)
+        if data and test:
+            table.add_column(data.attributes[-1], test)
         print(table)
 
 
@@ -112,6 +114,14 @@ def main():
         print("Generated graph to file:", f_name)
     else:
         print_tree(data.values, data.attributes, tree)
+
+    op = input("Do you want to classify new examples? [y/n]: ")
+    if op in 'yY' or op in 'yesYes':
+        test_data = find_files()
+        test_data.values.insert(0, test_data.attributes)
+        test_data.attributes = data.attributes[:-1]
+        class_results = classify(tree, test_data.values, test_data.attributes)
+        test_data.print_data(data=data, test=class_results)
 
 
 if __name__ == "__main__":
