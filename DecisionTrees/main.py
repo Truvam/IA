@@ -118,10 +118,16 @@ def main():
     op = input("Do you want to classify new examples? [y/n]: ")
     if op in 'yY' or op in 'yesYes':
         test_data = find_files()
-        test_data.values.insert(0, test_data.attributes)
-        test_data.attributes = data.attributes[:-1]
-        class_results = classify(tree, test_data.values, test_data.attributes)
-        test_data.print_data(data=data, test=class_results)
+        if test_data.attributes != data.attributes[:-1]:
+            test_data.values.insert(0, test_data.attributes)
+            test_data.attributes = data.attributes[:-1]
+        try:
+            class_results = classify(tree, test_data.values,
+                                     test_data.attributes)
+            test_data.print_data(data=data, test=class_results)
+        except ValueError:
+            print("Unable to classify examples in:", test_data.name)
+            exit(0)
 
 
 if __name__ == "__main__":
