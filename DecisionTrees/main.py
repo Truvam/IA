@@ -95,8 +95,12 @@ def print_tree(values, attributes, tree, level=0, parent=None, label=""):
 
 
 def main():
-    if len(sys.argv) > 1:
+    test = True
+    if len(sys.argv) == 2:
         data = find_files(argv=sys.argv[1:])
+    elif len(sys.argv) == 3:
+        data = find_files(argv=sys.argv[1:])
+        test = False
     else:
         data = find_files()
     data.print_data()
@@ -115,9 +119,15 @@ def main():
     else:
         print_tree(data.values, data.attributes, tree)
 
-    op = input("Do you want to classify new examples? [y/n]: ")
+    if test:
+        op = input("Do you want to classify new examples? [y/n]: ")
+    else:
+        op = 'Y'
     if op in 'yY' or op in 'yesYes':
-        test_data = find_files()
+        if test:
+            test_data = find_files()
+        else:
+            test_data = find_files(argv=sys.argv[2:])
         if test_data.attributes != data.attributes[:-1]:
             test_data.values.insert(0, test_data.attributes)
             test_data.attributes = data.attributes[:-1]
