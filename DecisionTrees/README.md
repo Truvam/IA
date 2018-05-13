@@ -3,7 +3,7 @@
 # Decision Trees
 ## Installation:
 ```
-Version: Python 3.5.2
+Version: Python 3.5.2  |  graphviz 2.38.0
 $ git clone https://github.com/Truvam/IA.git
 $ cd IA/DecisionTrees/
 $ sudo pip3 install -r requirements.txt
